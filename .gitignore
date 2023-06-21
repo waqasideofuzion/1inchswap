@@ -1,0 +1,15 @@
+.vscode/
+node_modules/
+artifacts/
+typings/
+build/
+cache/
+types/
+typechain/
+coverage/
+coverage.json
+.env
+secrets.json
+bin/
+.openzeppelin/
+docgen
