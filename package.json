@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "swap contract",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "deploy": "npx hardhat run --network bsc_mainnet scripts/1inchswap.js"
+  },
   "author": "waqas.wahid@ideofuzion.com",
   "license": "ISC",
   "homepage": "https://.io",
