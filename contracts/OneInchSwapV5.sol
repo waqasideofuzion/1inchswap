@@ -47,7 +47,7 @@ contract OneInchSwapV5 is Ownable {
     ) external onlyOwner returns (uint256 returnAmount, uint256 spentAmount) {
         (returnAmount, spentAmount) = IAggregationRouterV5(
             AGGREGATION_ROUTER_V5
-        ).swap(executor, desc, permit, data);
+        ).swap{value: desc.amount}(executor, desc, permit, data);
 
         emit Swap(_msgSender(), desc.amount, spentAmount, returnAmount);
     }

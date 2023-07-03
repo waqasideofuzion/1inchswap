@@ -180,7 +180,7 @@ class OneInch {
 async function main() {
 
     const chain = 'bnb'
-    const walletAddress = "0x4576EFfae0d9463591Bc66b4653baD8ce281C16B"
+    const walletAddress = "0xEc18D1dE1DCeb32f12F3CF5788E6333394f4006B"
 
     const rpcUrl = rpcUrls[chain]
     const provider = new providers.StaticJsonRpcProvider(rpcUrl)
@@ -242,7 +242,7 @@ async function main() {
     console.log("decodedData.data", decodedData.data);
 
 
-    const oneInchswap = await ethers.getContractAt('OneInchSwap', "0x4576EFfae0d9463591Bc66b4653baD8ce281C16B", wallet);
+    const oneInchswap = await ethers.getContractAt('OneInchSwap', "0xEc18D1dE1DCeb32f12F3CF5788E6333394f4006B", wallet);
 
 
     // const deploy1InchSwap = await SwapFactory.deploy("0x1111111254fb6c44bAC0beD2854e76F90643097d");
