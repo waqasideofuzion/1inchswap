@@ -36,6 +36,7 @@ const addresses = {
         AAVE: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
     },
     bnb: {
+        ETH: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE',
         BUSD: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
         USDT: '0x55d398326f99059fF775485246999027B3197955'
 
@@ -45,7 +46,7 @@ const addresses = {
 
 class OneInch {
     constructor() {
-        this.baseUrl = 'https://api.1inch.exchange/v4.0'
+        this.baseUrl = 'https://api.1inch.io/v5.0'
     }
 
     async getQuote(config) {
@@ -179,7 +180,7 @@ class OneInch {
 async function main() {
 
     const chain = 'bnb'
-    const walletAddress = "0x05F216c9F0f66B0f9aabD7592c152db970C93b40"
+    const walletAddress = "0x4576EFfae0d9463591Bc66b4653baD8ce281C16B"
 
     const rpcUrl = rpcUrls[chain]
     const provider = new providers.StaticJsonRpcProvider(rpcUrl)
@@ -190,10 +191,10 @@ async function main() {
     const oneInch = new OneInch()
 
     const chainId = slugToChainId[chain]
-    const fromToken = 'USDT'
+    const fromToken = 'ETH'
     const toToken = 'BUSD'
     const slippage = 1
-    const formattedAmount = '1'
+    const formattedAmount = '0.0001'
     const amount = parseUnits(formattedAmount, tokenDecimals[fromToken]).toString()
 
     console.log('chain:', chain)
@@ -229,18 +230,19 @@ async function main() {
     console.log('done')
 
 
-    const SwapFactory = await ethers.getContractFactory("OneInchSwap")
+    const SwapFactory = await ethers.getContractFactory("AggregationRouterV5")
     const decodedData = SwapFactory.interface.decodeFunctionData(
         "swap",
         txData.data
     )
 
-    console.log("decodedData.caller", decodedData.caller);
+    console.log("decodedData.caller", decodedData.executor);
     console.log("decodedData.desc", decodedData.desc);
+    console.log("decodedData.permit", decodedData.permit);
     console.log("decodedData.data", decodedData.data);
 
 
-    const oneInchswap = await ethers.getContractAt('OneInchSwap', "0x05F216c9F0f66B0f9aabD7592c152db970C93b40", wallet);
+    const oneInchswap = await ethers.getContractAt('OneInchSwap', "0x4576EFfae0d9463591Bc66b4653baD8ce281C16B", wallet);
 
 
     // const deploy1InchSwap = await SwapFactory.deploy("0x1111111254fb6c44bAC0beD2854e76F90643097d");
@@ -249,7 +251,7 @@ async function main() {
     // const impersonatedSigner = await ethers.getImpersonatedSigner(walletAddress);
 
     //swap here
-    await oneInchswap.swap(decodedData.caller, decodedData.desc, decodedData.data, { value: 0 });
+    // await oneInchswap.swap(decodedData.caller, decodedData.desc, decodedData.data, { value: ethers.utils.parseUnits("0.0001", 18) });
 
 
 

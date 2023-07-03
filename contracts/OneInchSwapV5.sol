@@ -4,10 +4,10 @@ pragma solidity 0.8.10;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IAggregationExecutor.sol";
-import "./interfaces/IAggregationRouterV4.sol";
+import "./interfaces/IAggregationRouterV5.sol";
 
-contract OneInchSwap is Ownable {
-    address public immutable AGGREGATION_ROUTER_V4;
+contract OneInchSwapV5 is Ownable {
+    address public immutable AGGREGATION_ROUTER_V5;
 
     event Swap(
         address sender,
@@ -17,7 +17,7 @@ contract OneInchSwap is Ownable {
     );
 
     constructor(address router) {
-        AGGREGATION_ROUTER_V4 = router;
+        AGGREGATION_ROUTER_V5 = router;
     }
 
     receive() external payable {}
@@ -25,7 +25,7 @@ contract OneInchSwap is Ownable {
     function approveCollateralToOneInch(
         address[] memory _collateralTokens,
         uint256[] memory _amounts
-    ) external {
+    ) external onlyOwner {
         uint256 lengthCollaterals = _collateralTokens.length;
         require(
             lengthCollaterals == _amounts.length,
@@ -33,27 +33,31 @@ contract OneInchSwap is Ownable {
         );
         for (uint256 i = 0; i < lengthCollaterals; i++) {
             IERC20(_collateralTokens[i]).approve(
-                AGGREGATION_ROUTER_V4,
+                AGGREGATION_ROUTER_V5,
                 _amounts[i]
             );
         }
     }
 
     function swap(
-        IAggregationExecutor caller,
-        SwapDescription memory desc,
-        bytes memory data
-    ) external payable {
- 
-        (
-            uint256 returnAmount,
-            uint256 spentAmount,
-        ) = IAggregationRouterV4(AGGREGATION_ROUTER_V4).swap{value: msg.value}(
-                caller,
-                desc,
-                data
-            );
+        IAggregationExecutor executor,
+        SwapDescription calldata desc,
+        bytes calldata permit,
+        bytes calldata data
+    ) external payable onlyOwner returns (uint256 returnAmount, uint256 spentAmount) {
+        (returnAmount, spentAmount) = IAggregationRouterV5(
+            AGGREGATION_ROUTER_V5
+        ).swap{value: msg.value}(executor, desc, permit, data);
 
         emit Swap(_msgSender(), desc.amount, spentAmount, returnAmount);
+    }
+
+    function withdrawNative() external onlyOwner {
+        payable(msg.sender).transfer(address(this).balance);
+    }
+
+    function withdrawToken(address _token) external onlyOwner {
+        uint256 tokenBalance = IERC20(_token).balanceOf(address(this));
+        IERC20(_token).transfer(msg.sender, tokenBalance);
     }
 }
